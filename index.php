@@ -1,6 +1,5 @@
 <?php
 session_start();
-include 'functions.php';
 
 if (!isset($_SESSION['tasks'])) {
     $_SESSION['tasks'] = [];
@@ -33,7 +32,61 @@ if (isset($_POST['hapus_index'])) {
     }
 }
 
+// Edit tugas
+if (isset($_POST['edit_index']) && isset($_POST['edit_judul'])) {
+    $i = (int) $_POST['edit_index'];
+    $judulBaru = trim($_POST['edit_judul']);
+    if (isset($tasks[$i]) && !empty($judulBaru)) {
+        $tasks[$i]['judul'] = $judulBaru;
+    }
+}
+
 $_SESSION['tasks'] = $tasks;
+
+// Fungsi untuk menampilkan daftar tugas
+function tampilkanDaftar($tasks) {
+    echo "<table class='table'>";
+    echo "<thead><tr><th>#</th><th>Judul</th><th>Status</th><th>Aksi</th></tr></thead><tbody>";
+    foreach ($tasks as $i => $task) {
+        $statusClass = $task['status'] === 'selesai' ? 'table-success' : '';
+        echo "<tr class='$statusClass'>";
+        echo "<td>" . ($i + 1) . "</td>";
+
+        if (isset($_POST['edit_mode']) && $_POST['edit_mode'] == $i) {
+            echo "<td colspan='2'>
+                    <form method='post' class='d-flex gap-2'>
+                        <input type='hidden' name='edit_index' value='$i'>
+                        <input type='text' name='edit_judul' value='" . htmlspecialchars($task['judul']) . "' class='form-control' required>
+                        <button type='submit' class='btn btn-success'>Simpan</button>
+                    </form>
+                  </td>";
+        } else {
+            echo "<td>" . htmlspecialchars($task['judul']) . "</td>";
+            echo "<td>" . ucfirst($task['status']) . "</td>";
+        }
+
+        echo "<td class='d-flex gap-1'>
+                <form method='post'>
+                    <input type='hidden' name='toggle_index' value='$i'>
+                    <button type='submit' class='btn btn-sm btn-warning'>✔</button>
+                </form>
+                <form method='post'>
+                    <input type='hidden' name='hapus_index' value='$i'>
+                    <button type='submit' class='btn btn-sm btn-danger'>🗑</button>
+                </form>";
+
+        if (!isset($_POST['edit_mode']) || $_POST['edit_mode'] != $i) {
+            echo "<form method='post'>
+                    <input type='hidden' name='edit_mode' value='$i'>
+                    <button type='submit' class='btn btn-sm btn-info'>✏️</button>
+                  </form>";
+        }
+
+        echo "</td>";
+        echo "</tr>";
+    }
+    echo "</tbody></table>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -84,7 +137,7 @@ $_SESSION['tasks'] = $tasks;
 <div class="container py-5">
     <header class="text-center mb-4">
         <h1 class="text-danger">🎉 ToDoList</h1>
-        <p class="text-dark">Tandai tugas selesai, hapus yang tidak perlu</p>
+        <p class="text-dark">Tandai tugas selesai, hapus yang tidak perlu, dan edit bila perlu</p>
     </header>
 
     <!-- Form tambah tugas -->
