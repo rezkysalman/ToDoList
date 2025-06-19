@@ -7,16 +7,24 @@
  */
 function tampilkanDaftar(array $tasks): void {
     echo '<table class="table table-bordered mt-4">';
-    echo '<thead class="table-light"><tr><th>Status</th><th>Judul Tugas</th><th>Aksi</th></tr></thead><tbody>';
+    echo '<thead class="table-light">
+            <tr>
+                <th>Status</th>
+                <th>Judul Tugas</th>
+                <th>Keterangan</th>
+                <th>Aksi</th>
+            </tr>
+          </thead><tbody>';
 
     foreach ($tasks as $index => $task) {
         $checked   = $task['status'] === 'selesai' ? 'checked' : '';
         $rowClass  = $task['status'] === 'selesai' ? 'table-success' : '';
+        $label     = $task['status'] === 'selesai' ? 'Selesai' : 'Belum Selesai';
 
         echo "<tr class='$rowClass'>";
         
         // Checkbox status
-        echo "<td>
+        echo "<td class='text-center'>
                 <form method='post' class='d-inline'>
                     <input type='hidden' name='toggle_index' value='$index'>
                     <input type='checkbox' onchange='this.form.submit()' $checked>
@@ -25,6 +33,9 @@ function tampilkanDaftar(array $tasks): void {
 
         // Judul tugas
         echo "<td>" . htmlspecialchars($task['judul']) . "</td>";
+
+        // Keterangan status
+        echo "<td>$label</td>";
 
         // Tombol hapus
         echo "<td>
@@ -39,3 +50,4 @@ function tampilkanDaftar(array $tasks): void {
 
     echo '</tbody></table>';
 }
+?>
